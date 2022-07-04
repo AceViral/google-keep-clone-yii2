@@ -11,6 +11,7 @@ use yii\base\Model;
  * @property-read User|null $user
  *
  */
+const EXPIRE_TIME = 604800; // Срок действия токена, действует 7 дней
 class LoginForm extends Model
 {
     public $username;
@@ -59,8 +60,19 @@ class LoginForm extends Model
      */
     public function login()
     {
+        // if ($this->validate()) {
+        //     return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600*24*30 : 0);
+        // }
+        // return false;
         if ($this->validate()) {
-            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600*24*30 : 0);
+            //return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600 * 24 * 30 : 0);
+            if ($this->getUser()) {
+                $access_token = $this->_user->generateAccessToken();
+                $this->_user->expire_at = time() + static::EXPIRE_TIME;
+                $this->_user->save();
+                Yii::$app->user->login($this->_user, static::EXPIRE_TIME);
+                return $access_token;
+            }
         }
         return false;
     }
