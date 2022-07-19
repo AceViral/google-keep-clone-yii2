@@ -24,6 +24,20 @@ $config = [
             'application/json' => 'yii\web\JsonParser',
         ],
         ],
+        'response' => [
+            'class' => 'yii\web\Response',
+            'on beforeSend' => function ($event) {
+                $response = $event->sender;
+                $data = $response->data;
+                if ($data !== null) {
+                    $response->data = [
+                        'code' => isset($data['code']) ? $data['code'] : 200,
+                        'message' => isset($data['message']) ? $data['message'] : null,
+                        'data' => isset($data['data']) ? $data['data'] : $data
+                    ];
+                }
+            }
+        ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
@@ -31,6 +45,7 @@ $config = [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
             'enableSession'=>false,
+            'loginUrl' => null
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -59,7 +74,17 @@ $config = [
             'showScriptName' => false,
             'enableStrictParsing' => true,
             'rules' => [
-                ['class' => 'yii\rest\UrlRule', 'controller' => 'v1/note'],
+                [
+                    'class' => 'yii\rest\UrlRule', 
+                    'controller' => 'v1/note'
+                ],
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'user',
+                    'extraPatterns' => [
+                        'POST login' => 'login',
+                    ]
+                ],
                 '<controller:\w+>/<id:\d+>' => '<controller>/view',
                 '<controller:\w+>/<action:\w+>/<id:\d+>' => '<controller>/<action>',
                 '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
@@ -76,14 +101,14 @@ if (YII_ENV_DEV) {
     $config['modules']['debug'] = [
         'class' => 'yii\debug\Module',
         // uncomment the following to add your IP if you are not connecting from localhost.
-        'allowedIPs' => ['127.0.0.1', '185.150.15.114', '::1'],
+        'allowedIPs' => ['127.0.0.1', '192.168.184.34', '::1'],
     ];
 
     $config['bootstrap'][] = 'gii';
     $config['modules']['gii'] = [
         'class' => 'yii\gii\Module',
         // uncomment the following to add your IP if you are not connecting from localhost.
-        'allowedIPs' => ['127.0.0.1', '185.150.15.114','::1'],
+        'allowedIPs' => ['127.0.0.1', '192.168.184.34','::1'],
     ];
 }
 
