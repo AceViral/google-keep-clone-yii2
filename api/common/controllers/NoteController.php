@@ -1,10 +1,10 @@
 <?php
 
-namespace app\controllers;
+namespace app\api\modules\v1\controllers;
 
 class NoteController extends \yii\rest\ActiveController
 {
-    public $modelClass = 'app\models\Note';
+    public $modelClass = 'app\api\modules\v1\models\Note';
     public function behaviors()
 {
     $behaviors = parent::behaviors();
