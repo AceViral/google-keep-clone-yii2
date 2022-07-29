@@ -3,10 +3,30 @@
 namespace app\controllers;
 
 use app\models\LoginForm;
+use yii\filters\Cors;
 
 class UserController extends BaseActiveController
 {
     public $modelClass = 'app\models\User';
+
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        unset($behaviors['authenticator']);
+
+        //  Добавляем первоначально CORS!
+        $behaviors['corsFilter'] = [
+            'class' => Cors::class,
+        ];
+
+        //  Теперь авторизацию.
+        $behaviors['authenticator'] = [
+            'class' => HttpBearerAuth::class,
+            'except' => ['options'],
+        ];
+
+        return $behaviors;
+    }
 
     public function actionLogin() {
         $model = new LoginForm();
@@ -25,4 +45,6 @@ class UserController extends BaseActiveController
             'message' => $model->errors
         ];
     }
+   
+
 }
